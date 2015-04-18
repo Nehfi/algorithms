@@ -1,26 +1,22 @@
 package opg2;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.io.InputStreamReader;
+
 
 public class main {
 
 	static String[] persons;
 	static boolean[][] friends;
-
+	static int noPeople;
+	
 	public static void main(String[] args) throws IOException {
-//		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-		BufferedReader reader = new BufferedReader(new FileReader("input2"));
+		
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
 		String line;
 		String group = null;
-
-		int E = 0;
-		ArrayList<Integer> gr = new ArrayList<Integer>();
-		String[] q;
 
 		while((line=reader.readLine()) != null){
 			if (line.trim().startsWith("taetvenskab") == true){
@@ -29,56 +25,66 @@ public class main {
 				break;
 			}
 			else if(line.trim().substring(0,1).matches("[a-zA-Z]")){
-				int V = countwords(line);
-				System.out.println("V: " + V);
-				persons = new String[V];
-				friends = new boolean[V][V];
+				noPeople = countwords(line);
+				persons = new String[noPeople];
+				friends = new boolean[noPeople][noPeople];
 
-				for(int i = 0; i<V; i++){
+				for(int i = 0; i<noPeople; i++){
 					for(int j=0; j<i; j++){
 						friends[i][j] = false;
-//						System.out.println("Freinds i,j: " + friends[i][j]);
 					}
 				}
 			}
 			else if(line.trim().substring(0,1).matches("[0-9]")){
-				int p1 = Integer.parseInt(line.trim().substring(0, 1));
-				int p2 = Integer.parseInt(line.trim().substring(2));
+				int p1 = Integer.parseInt(line.trim().substring(0, line.indexOf(" ")));
+				int p2 = Integer.parseInt(line.trim().substring(line.indexOf(" ")+1));
 				addEdge(p1, p2);
-				E++;
 			}
 		}
 
 		boolean isTight = tightFriends(group);
-		System.out.println("Be tight? " + isTight);
+		
+		if(isTight){
+			System.out.println("ja");
+		}else{
+			System.out.println("nej");
+		}
 	}
 
 	public static boolean tightFriends(String str) {
-		boolean bool = false;
-
-		String[] digitwords = str.split("\\s+");
-		int[] result = new int[digitwords.length];
-		for (int i = 0; i < result.length; i++) {
-		    result[i] = Integer.parseInt(digitwords[i]);
-		    System.out.println("Res :" + result[i]);
+		boolean bool = true;
+		
+		String[] members = str.split("\\s+");
+		int[] memb = new int[members.length];
+		
+		for (int i = 0 ; i<memb.length; i++) {
+		    memb[i] = Integer.parseInt(members[i]);
 		}
-
 		
-		
+		outerloop:
+		for(int i=1; i<memb.length; i++){
+			for(int j=1; j<memb.length; j++){
+				if((memb[i] == memb[j]) == false){
+			    	bool = isEdge(memb[i], memb[j]);
+			    	if(bool == false){
+			    		break outerloop;
+			    	}
+				}
+		    }
+	    	
+	    }
 		return bool;
 	}
 
 	public static void addEdge(int p1, int p2){
 		friends[p1][p2] = true;
 		friends[p2][p1] = true;
-		System.out.println("Venskab " + p1 + " og " + p2 + " er: " + friends[p2][p1]);
 	}
 
 	public static boolean isEdge(int p1, int p2){
 		boolean bool = false;
 		bool = friends[p1][p2];
 
-		System.out.println("IsEdge?: " + bool);
 
 		return bool;
 	}
